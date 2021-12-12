@@ -1,45 +1,54 @@
 import './App.css';
 import './components/styles.css';
-import React, {useEffect, useState, useCallback} from "react";
+import React, { useState, useCallback} from "react";
 import CardContainer from './components/weather'
 import CitySearchInput from "./components/search";
-import {FormControlLabel, FormGroup, Switch} from "@material-ui/core";
+import {Button, FormControlLabel, Switch} from "@material-ui/core";
+import Alert from '@material-ui/lab/Alert';
+import weatherApi from "./api/weather_api";
 
 const { showTempUnit } = require('./components/helpers')
 
 function App() {
-  const [state, setState] = useState({showF: false, weatherData: null})
+  const [state, setState] = useState({
+      showF: false,
+      weatherWrapper: new weatherApi(),
+      alert: false
+  })
 
-
+  /*
+  * Since OneCall Api only accepts lat and long for the geographical location,
+  * so need to make the first forecast api fetch to get the lat and long for the input city,
+  * then make the second onecall api fetch to get the weather data for the corresponding
+  * lat and long*/
   const searchCallback = useCallback(async (city) => {
-    // const fetchWeatherData = async () => {
-      // navigator.geolocation.getCurrentPosition(function(position) {
-      //   setState(state => ({
-      //     ...state,
-      //     lat: position.coords.latitude,
-      //     long: position.coords.longitude,
-      //   }));
-      // });
-      console.log("in callback")
+      await fetch(state.weatherWrapper.getForecastUrl(city))
+          .then(res => res.json())
+          .then(result => {
+              let coord = result.city.coord
+              fetch(state.weatherWrapper.getOCUrl(coord))
+                  .then(res => res.json())
+                  .then(result => {
+                      setState(state => ({
+                          ...state,
+                          weatherWrapper: state.weatherWrapper.setWeatherData(result),
+                          alert: false
+                      }))
+                      console.log(result)
+                      console.log(state)
+                  })
 
-      await fetch(`${process.env.REACT_APP_API_URL}/forecast.json?key=${process.env.REACT_APP_API_KEY}
-      &q=${city}&days=${process.env.REACT_APP_FORECAST_DAYS}`)
-        .then(res => res.json())
-        .then(result => {
-          setState(state => ({
-            ...state,
-              weatherData: result,
-          }))
-          console.log(result)
-          // console.log(process.env)
-        });
-    // }
-    // fetchWeatherData();
-    // console.log("Latitude is:", state.lat)
-    // console.log("Longitude is:", state.long)
+          })
+          .catch(e => {
+              setState(state => ({
+                  ...state,
+                  weatherWrapper: state.weatherWrapper.setWeatherData(null),
+                  alert: true
+              }))
+      });
 
+  }, [state]);
 
-  }, []);
 
   function handleSwitch(e){
     setState(state => ({
@@ -47,33 +56,47 @@ function App() {
         showF: e.target.checked,
     }))
   }
-  // console.log("state: ", state)
 
   return (
     <div className='App'>
         <CitySearchInput searchCallBack={searchCallback} />
-        {/*<img src={require('./logo.svg')} alt={"sddf"}/>*/}
         <FormControlLabel
             control={
                 <Switch
                     checked={state.showF}
                     onChange={handleSwitch}
                     color="primary"
-                    name="checkedB"
-                    inputProps={{'aria-label': 'primary checkbox'}}
+                    inputProps={{'aria-label': 'temperature unit switch'}}
 
                 />
             }
             label = {"Show " + showTempUnit(state.showF)}
             className='Switch'
         />
-
         {/*mandatory check because fetch data is an async function*/}
-        {(state.weatherData) ? (
+        {(state.weatherWrapper.getWeatherData()) ? (
           <CardContainer props={state} />
-          // <div></div>
         ): (
-          <div></div>
+            <div/>
+        )}
+        {/*Generate an alert for invalid input of city*/}
+        {(state.alert) ? (
+            <Alert
+                action={
+                    <Button color="inherit" size="small" onClick={() =>{
+                        setState(state => ({
+                            ...state,
+                            alert: false
+                        }))
+                    }}>
+                        Close
+                    </Button>
+                }
+            >
+                Invalid city name!
+            </Alert>
+        ): (
+            <div/>
         )}
     </div>
   );

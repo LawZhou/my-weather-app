@@ -1,4 +1,6 @@
-function showTempUnit(showF){
+import moment from "moment-timezone";
+
+export function showTempUnit(showF){
     let tempUnit;
     switch(showF){
         case true:
@@ -10,4 +12,19 @@ function showTempUnit(showF){
     return tempUnit;
 }
 
-module.exports = { showTempUnit };
+export function convertTempUnit(tempC, showF){
+    /**convert temp to Fahrenheit if showF is true*/
+    if(showF){
+        return (tempC*(9/5))+32;
+    }
+    return tempC;
+}
+
+function convertTZ(dt, timezone) {
+    /** convert unix time to the time in the timezone */
+    return moment.tz(moment.unix(dt), timezone)
+}
+export function convertDt(dt, timezone, format){
+    /** convert time in specific format */
+    return convertTZ(dt, timezone).format(format);
+}

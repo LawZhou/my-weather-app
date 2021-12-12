@@ -1,79 +1,57 @@
 import React from 'react';
 import './styles.css';
-import {Box, Button, Card, CardHeader, CardContent, Typography, CardMedia, Grid, Avatar, Icon} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
+import {Card, CardHeader, CardContent, Typography, CardMedia, Grid} from "@material-ui/core";
+import { useWeatherStyles } from "./styles";
 import waterDrop from './icon/water_drop.svg'
-import {Home} from "@material-ui/icons";
+import weatherApi from "../api/weather_api";
 
 const { showTempUnit } = require('./helpers')
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        position: 'absolute',
-        width: '60%',
-        left: '15%',
-        top: '30%',
-    },
-    card: {
-        boxShadow: "5px 5px grey"
-    },
-    weatherIcon: {
-        position: 'relative',
-        left: '25%',
-        width: '50%',
-        height: '50%'
-    }
-}));
-
 function CardContainer({props}){
-    const classes = useStyles();
-    const {showF, weatherData} = props
+    /**
+     * Container for all weather info cards
+     * */
+    const classes = useWeatherStyles();
+    const {showF, weatherWrapper} = props;
+    const tz = weatherWrapper.getWeatherData().timezone;
     return (
         <Grid container spacing={1} className={classes.root}>
             {
-                weatherData.forecast.forecastday.map((day, i) =>
-                    <WeatherCard props={{showF: showF, forecastday: day}} key={i}/>
+                weatherWrapper.getForecastDays()
+                    .slice(0, weatherWrapper.numDays).map((day, i) =>
+                    <WeatherCard props={{showF: showF, day: day, tz: tz}} key={i}/>
                 )
 
-            }
-            {
-                weatherData.forecast.forecastday.map((day, i) =>
-                    <WeatherCard props={{showF: showF, forecastday: day}} key={i}/>
-                )
             }
         </Grid>
     );
-};
-
+}
 
 function WeatherCard({props}){
-    const classes = useStyles();
-    const {showF, forecastday} = props
-    const day = forecastday.day
+    /**
+     * Generate weather card for each forecast day
+     * */
+    const classes = useWeatherStyles();
+    const {showF, day, tz} = props
     return (
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={12} sm={2}>
             <Card className={classes.card}>
                 <React.Fragment>
-                    {/*<CardHeader title={weatherInfo.location.name}/>*/}
-                    {/*<CardMedia*/}
-                    {/*    component="img"*/}
-                    {/*    image={forecastday.day.condition.icon}*/}
-                    {/*    alt="Paella dish"*/}
-                    {/*/>*/}
-                    <CardMedia component="img" image={forecastday.day.condition.icon} className={classes.weatherIcon}/>
+                    <CardHeader
+                        title={weatherApi.getDateTime(day, tz)}
+                        titleTypographyProps={{variant:'h6' }}/>
+                    <CardMedia component="img" image={weatherApi.getIcon(day)} className={classes.weatherIcon}/>
                     <CardContent>
                         <Typography>{
-                            showF? day.maxtemp_f + showTempUnit(showF):
-                                   day.maxtemp_c + showTempUnit(showF)
+                                   Math.round(weatherApi.getMaxTemp(day, showF)) + showTempUnit(showF)
                         }
                         </Typography>
                         <Typography>{
-                            showF? day.mintemp_f + showTempUnit(showF):
-                                   day.mintemp_c + showTempUnit(showF)
+                                   Math.round(weatherApi.getMinTemp(day, showF)) + showTempUnit(showF)
                         }
                         </Typography>
-                        {/*<img src={require('../logo.svg')} alt={"sddf"}/>*/}
-                        <Typography>{day.daily_chance_of_rain + "%"}</Typography>
+                        <img src={require('./img/water_drop.svg')} alt={"sddf"}/>
+                        <Typography>{'Pop: ' + weatherApi.getPopChance(day) + "%"}</Typography>
                     </CardContent>
                 </React.Fragment>
             </Card>
