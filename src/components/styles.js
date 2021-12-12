@@ -41,7 +41,18 @@ const useWeatherStyles = makeStyles((theme) => ({
         left: '25%',
         width: '50%',
         height: '50%'
-    }
+    },
+    popSpan: {
+        position: "relative",
+        left: "15%",
+        display: "inline-flex",
+        width: '100%',
+    },
+    popIcon: {
+        height: "20%",
+        width: "20%",
+    },
+
 }));
 
 export { useSearchStyles, useWeatherStyles }

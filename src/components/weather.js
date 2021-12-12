@@ -2,7 +2,7 @@ import React from 'react';
 import './styles.css';
 import {Card, CardHeader, CardContent, Typography, CardMedia, Grid} from "@material-ui/core";
 import { useWeatherStyles } from "./styles";
-import waterDrop from './icon/water_drop.svg'
+import waterDrop from './img/water_drop.png'
 import weatherApi from "../api/weather_api";
 
 const { showTempUnit } = require('./helpers')
@@ -33,7 +33,7 @@ function WeatherCard({props}){
      * Generate weather card for each forecast day
      * */
     const classes = useWeatherStyles();
-    const {showF, day, tz} = props
+    const {showF, day, tz} = props;
     return (
         <Grid item xs={12} sm={2}>
             <Card className={classes.card}>
@@ -51,8 +51,11 @@ function WeatherCard({props}){
                                    Math.round(weatherApi.getMinTemp(day, showF)) + showTempUnit(showF)
                         }
                         </Typography>
-                        <img src={require('./img/water_drop.svg')} alt={"sddf"}/>
-                        <Typography>{'Pop: ' + weatherApi.getPopChance(day) + "%"}</Typography>
+                        <span className={classes.popSpan}>
+                            <img src={waterDrop} className={classes.popIcon} alt={"sddf"}/>
+                            <Typography>{weatherApi.getPopChance(day) + "%"}</Typography>
+                        </span>
+
                     </CardContent>
                 </React.Fragment>
             </Card>

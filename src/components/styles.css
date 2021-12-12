@@ -11,4 +11,12 @@
     top: 21%;
     left: 5%;
 }
+.WaterDropIcon{
+    height: 10%;
+    width: 20%;
+    pointer-events: none;
+}
 
+.PopSpan{
+    display: inline;
+}
