@@ -44,7 +44,7 @@ const useWeatherStyles = makeStyles((theme) => ({
     },
     popSpan: {
         position: "relative",
-        left: "15%",
+        left: "19%",
         display: "inline-flex",
         width: '100%',
     },

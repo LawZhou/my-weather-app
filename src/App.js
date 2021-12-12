@@ -34,8 +34,6 @@ function App() {
                           weatherWrapper: state.weatherWrapper.setWeatherData(result),
                           alert: false
                       }))
-                      console.log(result)
-                      console.log(state)
                   })
 
           })
