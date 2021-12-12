@@ -19,6 +19,7 @@ function CardContainer({props}){
         <Grid container spacing={1} className={classes.root}>
             {
                 weatherWrapper.getForecastDays()
+                    //only need forecast up to numDays
                     .slice(0, weatherWrapper.numDays).map((day, i) =>
                     <WeatherCard props={{showF: showF, day: day, tz: tz}} key={i}/>
                 )
@@ -53,7 +54,7 @@ function WeatherCard({props}){
                         </Typography>
                         <span className={classes.popSpan}>
                             <img src={waterDrop} className={classes.popIcon} alt={"sddf"}/>
-                            <Typography>{weatherApi.getPopChance(day) + "%"}</Typography>
+                            <Typography>{Math.round(weatherApi.getPopChance(day)*100) + "%"}</Typography>
                         </span>
 
                     </CardContent>
