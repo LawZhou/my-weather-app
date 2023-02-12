@@ -21,15 +21,18 @@ function CitySearchInput({searchCallBack}) {
         searchCallBack(curInput)
     }
     return (
-        <Paper component="form" className={classes.root}>
+        <Paper component="form" className={classes.root} onSubmit={handleSubmit}>
             <InputBase
                 className={classes.input}
                 placeholder="Search City"
                 inputProps={{ 'aria-label': 'search city' }}
+                value={curInput}
                 onChange={handleChange}
             />
             <IconButton className={classes.iconButton}
-                        onClick={handleSubmit} aria-label="search">
+                        onClick={handleSubmit}
+                        type="submit"
+                        aria-label="search">
                 <SearchIcon />
             </IconButton>
             <Divider className={classes.divider} orientation="vertical" />

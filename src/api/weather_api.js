@@ -1,20 +1,17 @@
-const { convertTempUnit, convertDt } = require('../components/helpers')
+import { convertTempUnit, convertDt } from '../components/helpers';
 
-class weatherApi {
-    /**
-     * get data from a weather api
-     * */
+class WeatherApi {
     constructor() {
         this.weatherData = null;
         this.numDays = 5;
-        this.defaultCity = 'Toronto'
+        this.defaultCity = 'Toronto';
     }
-     getForecastUrl(city){
-        /** get forecast url */
-         return `${process.env.REACT_APP_FORECAST_URL}q=${city}&units=metric&appid=${process.env.REACT_APP_API_KEY}`;
-     }
-     getOCUrl(coord){
-        /** get OneCall Url*/
+
+    getForecastUrl(city) {
+        return `${process.env.REACT_APP_FORECAST_URL}q=${city}&units=metric&appid=${process.env.REACT_APP_API_KEY}`;
+    }
+
+    getOCUrl(coord) {
         return `${process.env.REACT_APP_ONECALL_URL}lat=${coord.lat}&lon=${coord.lon}&exclude=minutely,hourly,alerts,current&units=metric&appid=${process.env.REACT_APP_API_KEY}`;
     }
 
@@ -31,8 +28,8 @@ class weatherApi {
         return this.weatherData.daily;
     }
 
-    static getDateTime(day, timezone){
-        return convertDt(day.dt, timezone, 'ddd, MM-DD')
+    static getDateTime(day, timezone) {
+        return convertDt(day.dt, timezone, 'ddd, MM-DD');
     }
 
     static getMinTemp(day, showF) {
@@ -47,11 +44,9 @@ class weatherApi {
         return `${process.env.REACT_APP_ICON_URL}${day.weather[0].icon}.png`;
     }
 
-    static getPopChance(day){
-       /** return chance of precipitation*/
+    static getPopChance(day) {
         return day.pop;
-
     }
 }
 
-export default weatherApi;
+export default WeatherApi;

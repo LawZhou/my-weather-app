@@ -1,6 +1,6 @@
 import './App.css';
 import './components/styles.css';
-import React, { useState, useCallback} from "react";
+import React, { useState, useCallback, useEffect} from "react";
 import CardContainer from './components/weather'
 import CitySearchInput from "./components/search";
 import {Button, FormControlLabel, Switch} from "@material-ui/core";
@@ -10,42 +10,48 @@ import weatherApi from "./api/weather_api";
 const { showTempUnit } = require('./components/helpers')
 
 function App() {
-  const [state, setState] = useState({
-      showF: false,
-      weatherWrapper: new weatherApi(),
-      alert: false
-  })
+    const [state, setState] = useState({
+        showF: false,
+        weatherWrapper: new weatherApi(),
+        alert: false,
+        city: ""
+    });
 
-  /*
-  * Since OneCall Api only accepts lat and long for the geographical location,
-  * so need to make the first forecast api fetch to get the lat and long for the input city,
-  * then make the second onecall api fetch to get the weather data for the corresponding
-  * lat and long*/
-  const searchCallback = useCallback(async (city) => {
-      await fetch(state.weatherWrapper.getForecastUrl(city))
-          .then(res => res.json())
-          .then(result => {
-              let coord = result.city.coord
-              fetch(state.weatherWrapper.getOCUrl(coord))
-                  .then(res => res.json())
-                  .then(result => {
-                      setState(state => ({
-                          ...state,
-                          weatherWrapper: state.weatherWrapper.setWeatherData(result),
-                          alert: false
-                      }))
-                  })
+    useEffect(() => {
+        async function fetchWeatherData() {
+            if (!state.city) {
+                return;
+            }
+            try {
+                const forecast = await fetch(state.weatherWrapper.getForecastUrl(state.city)).then(res => res.json());
+                const coord = forecast.city.coord;
+                const weatherData = await fetch(state.weatherWrapper.getOCUrl(coord)).then(res => res.json());
+                setState(state => ({
+                    ...state,
+                    weatherWrapper: state.weatherWrapper.setWeatherData(weatherData),
+                    alert: false
+                }));
+            } catch (e) {
+                setState(state => ({
+                    ...state,
+                    weatherWrapper: state.weatherWrapper.setWeatherData(null),
+                    alert: true
+                }));
+            }
+        }
 
-          })
-          .catch(e => {
-              setState(state => ({
-                  ...state,
-                  weatherWrapper: state.weatherWrapper.setWeatherData(null),
-                  alert: true
-              }))
-      });
+        fetchWeatherData();
+    }, [state.city, state.weatherWrapper]);
 
-  }, [state]);
+    const searchCallback = useCallback(city => {
+        setState(state => ({
+            ...state,
+            city,
+            alert: false
+        }));
+    }, []);
+
+
 
 
   function handleSwitch(e){
